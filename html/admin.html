@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+
+<style>
+    body {
+    background-color: rgb(51,51,51);
+    }
+</style>
+
+<html>
+    <head>
+        
+    </head>
+
+    <body>
+        <script>
+            window.onload = () => {
+                const ServerBridge = new WebSocket(document.URL + "/BridgeOpen");
+                ["questionResumeImmature","questionStart","empty"].forEach(el => document.getElementById(el).onclick = () => {
+                    ServerBridge.send(el)
+                })
+            }
+        </script>
+        <button id="questionResumeImmature">End Answer</button>
+        <button id="questionStart">Start Question</button>
+        <button id="empty">End Question</button>
+    </body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+
+<style>
+    p{
+        font-size: 100px;
+    }
+    html {
+        min-width: 100vh;
+        min-height: 100vh;
+    }
+    body {
+        min-width: 100vh;
+        min-height: 100vh;
+    }
+    button {
+        flex: 1;
+        background-color: aqua;
+        color:steelblue;
+        transition-duration: 0.5s;
+        border: 0px;
+    }
+    button:disabled {
+        background-color: darkgray !important;
+        color: black !important;
+    }
+    .inner_div {
+        flex: 1;
+    }
+    .outer_div {
+        display:flex;
+        flex-direction: column;
+        width:  90%;
+        height: 90vh;
+        margin: auto;
+    }
+</style>
+
+<html>
+    <head>
+        <title></title>
+        <meta charset="utf-8">
+    </head>
+
+    <body>
+        <div class="outer_div">
+            <div class="inner_div">
+                <p id="team">Takım numarası alınıyor...</p>
+                <p id="answer">Soru başlaması bekleniyor...</p>
+            </div>
+            <button type="button" id="answerButton">Cevap Verin</button>
+        </div>
+        <script>
+            let groupIdentifier
+            let ServerStatus = "empty" 
+            let answerable = true
+            let ServerBridge
+
+            const webSocketBridge = () => {
+                ServerBridge = new WebSocket(document.URL + "BridgeOpen")
+                ServerBridge.onmessage = e => {
+                    if (e.data.startsWith("teamNumber")) {
+                        groupIdentifier = Number(e.data.split("teamNumber").join(""))
+                        return document.getElementById("team").innerText = "Takım numaranız " + groupIdentifier
+                    } else if (e.data.startsWith("answer")){
+                        const answeringNumber = Number(e.data.split("answer").join(""))
+                        if(answeringNumber == groupIdentifier){
+                            answerable = false
+                            ServerStatus = "answering"
+                            document.getElementById("answer").innerText = "Cevap veriyorsunuz"
+                        } else {
+                            ServerStatus = "answering_other"
+                            document.getElementById("answer").innerText = "Başka bir takım cevap veriyor"
+                        }
+                        return
+                    }
+                    switch (e.data) {
+                        case "empty":
+                            ServerStatus = "empty"
+                            answerable = true
+                            document.getElementById("answer").innerText = "Soru başlaması bekleniyor"
+                            break
+                        case "question":
+                            if (ServerStatus == "question") answerable = true 
+                            ServerStatus = "question"
+                            document.getElementById("answer").innerText = answerable ? "Cevap verebilirsiniz" : "Cevap hakkınızı kullandınız"
+                    }
+                }
+                ServerBridge.onclose = e => {
+                    webSocketBridge()
+                }
+            }
+
+            window.onload = () => {
+                console.log(document.URL)
+                const Button = document.getElementById("answerButton")
+                webSocketBridge()
+                Button.onclick = e => {
+                    if (Button.disabled || ServerStatus != "question" || !answerable) return
+                    ServerBridge.send("answer")
+                    Button.disabled = true
+                    setTimeout(() => {
+                        Button.disabled = false
+                    },3000)
+                }
+            }
+        </script>
+    </body>
+</html>
