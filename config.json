@@ -1,4 +1,5 @@
 {
     "port": 10000,
-    "explanation":"port number means the port that the system will be server"
+    "maxConnections": 10,
+    "explanation":"port number means the port that the system will be served and max connections is your player number plus 1."
 }

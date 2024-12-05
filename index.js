@@ -1,8 +1,8 @@
 const http = require("http"),
     fs = require("fs"),
     path  = require("path"),
-    crypto = require("crypto")
-
+    crypto = require("crypto"),
+    { port,maxConnections } = require("./config.json")
 let sockets = []
 let answering = false
 let answered = []
@@ -124,6 +124,6 @@ Server.on("upgrade", (req,socket,head) => {
     })
     socket.on("error", () => {})
 })
-Server.maxConnections = 10
-Server.listen(2020)
+Server.maxConnections = maxConnections
+Server.listen(port)
 //Umut TAVŞANKORU, IAFL BvTK, 2024, 10C, 824
